@@ -21,17 +21,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.Set;
 
 
-public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
+public class FeignClientRegister implements ImportBeanDefinitionRegistrar,
         ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware, BeanFactoryAware {
     private ClassLoader classLoader;
     private ResourceLoader resourceLoader;
@@ -58,21 +57,6 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
         this.resourceLoader = resourceLoader;
     }
 
-    protected ClassPathScanningCandidateComponentProvider getScanner() {
-        return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
-            @Override
-            protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-                boolean isCandidate = false;
-                if (beanDefinition.getMetadata().isIndependent()) {
-                    if (!beanDefinition.getMetadata().isAnnotation()) {
-                        isCandidate = true;
-                    }
-                }
-                return isCandidate;
-            }
-        };
-    }
-
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         registerFeignClients(importingClassMetadata, registry);
@@ -80,12 +64,12 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 
     public void registerFeignClients(AnnotationMetadata metadata,
                                      BeanDefinitionRegistry registry) {
-        ClassPathScanningCandidateComponentProvider scanner = getScanner();
+        ClassPathScanningCandidateComponentProvider scanner = GenerateUtil.getScanner(this.environment);
         scanner.setResourceLoader(this.resourceLoader);
         String basePackage;
         AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(FeignClient.class);
         scanner.addIncludeFilter(annotationTypeFilter);
-        basePackage = getBasePackages(metadata);
+        basePackage = GenerateUtil.getBasePackage(metadata);
         // scan if there is FeignClient
         Set<BeanDefinition> beanDefinitionSet = scanner.findCandidateComponents(basePackage);
         for (BeanDefinition beanDefinition : beanDefinitionSet) {
@@ -100,26 +84,8 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
         ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(className, createProxy(beanDefinition));
     }
 
-    protected String getBasePackages(AnnotationMetadata importingClassMetadata) {
-        Map<String, Object> attributes = importingClassMetadata.getAnnotationAttributes(EnableFeignClients.class.getCanonicalName());
-
-        String basePackage = null;
-        for (String pkg : (String[]) attributes.get("basePackages")) {
-            if (StringUtils.hasText(pkg)) {
-                basePackage = pkg;
-            }
-        }
-
-        if (basePackage == null) {
-            basePackage = ClassUtils.getPackageName(importingClassMetadata.getClassName());
-        }
-
-        return basePackage;
-    }
-
     /**
      * create dynamic proxy instance
-     *
      * @param annotatedBeanDefinition
      * @return
      */
@@ -152,11 +118,14 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) {
+        public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
             RpcCall rpcCall = AnnotationUtils.getAnnotation(method, RpcCall.class);
-            String signature = rpcCall.value();
-            consumer.rpc(signature, method.getReturnType());
-            return consumer.send(signature, args);
+            if (rpcCall != null) {
+                String signature = rpcCall.value();
+                consumer.rpc(signature, method.getReturnType());
+                return consumer.send(signature, args);
+            }
+            return method.invoke(proxy, args);
         }
     }
 }

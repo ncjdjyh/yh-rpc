@@ -12,6 +12,6 @@ import org.springframework.stereotype.Component;
 @FeignClient(ip = "localhost", port = 8000)
 @Component
 public interface DemoFeignClient {
-    @RpcCall("fib")
-    Long sum(int n);
+    @RpcCall("sum")
+    Long sum(int a, int b);
 }

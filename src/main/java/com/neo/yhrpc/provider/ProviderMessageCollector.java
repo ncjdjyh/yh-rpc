@@ -1,13 +1,8 @@
 package com.neo.yhrpc.provider;
 
-import com.neo.yhrpc.common.IMessageHandler;
-import com.neo.yhrpc.common.MessageHandlers;
-import com.neo.yhrpc.common.MessageInput;
-import com.neo.yhrpc.common.MessageRegistry;
+import com.neo.yhrpc.common.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,7 +49,7 @@ public class ProviderMessageCollector extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof MessageInput) {
-            this.executor.execute(() -> handleMessage(ctx, (MessageInput) msg));
+            this.executor.execute(() -> handleReflectMessage(ctx, (MessageInput) msg));
         }
     }
 
@@ -73,8 +68,28 @@ public class ProviderMessageCollector extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private void handleReflectMessage(ChannelHandlerContext ctx, MessageInput input) {
+        Class<?> clazz = registry.get(input.getType());
+        if (clazz == null) {
+            ctx.close();
+            return;
+        }
+        Object o = input.getPayload(clazz);
+        ReflectMessageHandler handler = handlers.getReflect(input.getType());
+        if (handler != null) {
+            handler.handle(ctx, input.getRequestId(), (Object[]) o);
+        } else {
+            handlers.defaultHandler().handle(ctx, input.getRequestId(), input);
+        }
+    }
+
     public void register(String signature, Class<?> returnClass, IMessageHandler handler) {
         this.handlers.register(signature, handler);
+        this.registry.register(signature, returnClass);
+    }
+
+    public void registerReflect(String signature, Class<?> returnClass, ReflectMessageHandler handler) {
+        this.handlers.registerReflect(signature, handler);
         this.registry.register(signature, returnClass);
     }
 }

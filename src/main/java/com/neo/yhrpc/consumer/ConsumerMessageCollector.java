@@ -5,8 +5,6 @@ import com.neo.yhrpc.common.MessageOutput;
 import com.neo.yhrpc.common.MessageRegistry;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -67,7 +65,7 @@ public class ConsumerMessageCollector extends ChannelInboundHandlerAdapter {
 
     public <T> RpcFuture<T> send(MessageOutput output) {
         ChannelHandlerContext ctx = context;
-        RpcFuture<T> future = new RpcFuture<T>();
+        RpcFuture<T> future = new RpcFuture<>();
         if (ctx != null) {
             ctx.channel().eventLoop().execute(() -> {
                 pendingTasks.put(output.getRequestId(), future);

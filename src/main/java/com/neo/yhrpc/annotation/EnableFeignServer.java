@@ -1,20 +1,20 @@
 package com.neo.yhrpc.annotation;
 
-import com.neo.yhrpc.generate.FeignClientRegister;
+import com.neo.yhrpc.generate.FeignServerRegister;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
 
 /**
- * @Author: neo
- * @FirstInitial: 2019/7/14
+ * @Author: ncjdjyh
+ * @FirstInitial: 2019/7/25
  * @Description: ~
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(FeignClientRegister.class)
-public @interface EnableFeignClients {
+@Import(FeignServerRegister.class)
+public @interface EnableFeignServer {
     String[] basePackages() default {};
     Class<?>[] clients() default {};
 }

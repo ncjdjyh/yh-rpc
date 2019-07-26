@@ -3,6 +3,7 @@ package com.neo.yhrpc.provider;
 import com.neo.yhrpc.common.IMessageHandler;
 import com.neo.yhrpc.common.MessageDecoder;
 import com.neo.yhrpc.common.MessageEncoder;
+import com.neo.yhrpc.common.ReflectMessageHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -29,6 +30,11 @@ public class RpcProvider {
 
     public RpcProvider service(String signature, Class<?> returnClass, IMessageHandler handler) {
         this.collector.register(signature, returnClass, handler);
+        return this;
+    }
+
+    public RpcProvider serviceReflect(String signature, Class<?> returnClass, ReflectMessageHandler handler) {
+        this.collector.registerReflect(signature, returnClass, handler);
         return this;
     }
 

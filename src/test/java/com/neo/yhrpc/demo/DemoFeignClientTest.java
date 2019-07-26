@@ -21,7 +21,7 @@ public class DemoFeignClientTest {
 
     @Test
     public void sum() {
-        Long a = feignClient.sum(1);
+        Long a = feignClient.sum(1, 3);
         System.out.println(a);
     }
 }
