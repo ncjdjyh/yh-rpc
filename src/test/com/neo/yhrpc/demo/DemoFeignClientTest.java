@@ -1,5 +1,6 @@
 package com.neo.yhrpc.demo;
 
+import com.neo.yhrpc.demo.DemoFeignClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

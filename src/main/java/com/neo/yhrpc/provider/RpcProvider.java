@@ -33,11 +33,6 @@ public class RpcProvider {
         return this;
     }
 
-    public RpcProvider serviceReflect(String signature, Class<?> returnClass, ReflectMessageHandler handler) {
-        this.collector.registerReflect(signature, returnClass, handler);
-        return this;
-    }
-
     public void start() {
         ServerBootstrap bootstrap = new ServerBootstrap();
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();

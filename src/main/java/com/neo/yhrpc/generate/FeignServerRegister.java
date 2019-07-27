@@ -89,7 +89,7 @@ public class FeignServerRegister implements ImportBeanDefinitionRegistrar,
                 for (Method method : declaredMethods) {
                     RpcResponse anno = AnnotationUtils.getAnnotation(method, RpcResponse.class);
                     if (Objects.nonNull(anno)) {
-                        provider.serviceReflect(anno.value(), Object[].class, new ReflectMessageHandler(method, clazz , anno.value()));
+                        provider.service(anno.value(), Object[].class, new ReflectMessageHandler(method, clazz , anno.value()));
                     }
                 }
             }

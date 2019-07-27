@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  * @FirstInitial: 2019/7/25
  * @Description: ~
  */
-public class ReflectMessageHandler {
+public class ReflectMessageHandler implements IMessageHandler {
     private Method method;
     private Class<?> clazz;
     private String signature;
@@ -21,9 +21,9 @@ public class ReflectMessageHandler {
         this.clazz = clazz;
     }
 
-    public void handle(ChannelHandlerContext ctx, String requestId, Object[] args) {
+    public void handle(ChannelHandlerContext ctx, String requestId, Object args) {
         try {
-            Object ret = method.invoke(clazz.newInstance(), args);
+            Object ret = method.invoke(clazz.newInstance(), (Object[])args);
             ctx.writeAndFlush(new MessageOutput(requestId, signature, ret));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
