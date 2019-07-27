@@ -4,7 +4,7 @@ package com.neo.yhrpc.consumer;
 import java.util.concurrent.*;
 
 /**
- * @Author: neo
+ * @Author: ncjdjyh
  * @FirstInitial: 2019/7/13
  * @Description: ~
  */

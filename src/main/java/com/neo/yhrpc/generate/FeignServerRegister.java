@@ -1,8 +1,8 @@
 package com.neo.yhrpc.generate;
 
-import com.neo.yhrpc.annotation.*;
+import com.neo.yhrpc.annotation.FeignServer;
+import com.neo.yhrpc.annotation.RpcResponse;
 import com.neo.yhrpc.common.ReflectMessageHandler;
-import com.neo.yhrpc.consumer.RpcConsumer;
 import com.neo.yhrpc.provider.RpcProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -22,10 +21,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -89,7 +85,7 @@ public class FeignServerRegister implements ImportBeanDefinitionRegistrar,
                 for (Method method : declaredMethods) {
                     RpcResponse anno = AnnotationUtils.getAnnotation(method, RpcResponse.class);
                     if (Objects.nonNull(anno)) {
-                        provider.service(anno.value(), Object[].class, new ReflectMessageHandler(method, clazz , anno.value()));
+                        provider.service(anno.value(), Object[].class, new ReflectMessageHandler(method, clazz, anno.value()));
                     }
                 }
             }

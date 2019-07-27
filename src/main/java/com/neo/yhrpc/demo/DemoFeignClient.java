@@ -5,7 +5,7 @@ import com.neo.yhrpc.annotation.RpcCall;
 import org.springframework.stereotype.Component;
 
 /**
- * @Author: neo
+ * @Author: ncjdjyh
  * @FirstInitial: 2019/7/14
  * @Description: ~
  */
