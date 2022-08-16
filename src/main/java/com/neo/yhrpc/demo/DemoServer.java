@@ -26,7 +26,7 @@ class FibRequestHandler implements IMessageHandler<Integer> {
             long value = fibs.get(i - 2) + fibs.get(i - 1);
             fibs.add(value);
         }
-        ctx.writeAndFlush(new MessageOutput(requestId, "fib_res", fibs.get(n)));
+        ctx.writeAndFlush(new MessageOutput(requestId, "fib", fibs.get(n)));
     }
 
 }
@@ -43,36 +43,9 @@ class ExpRequestHandler implements IMessageHandler<ExpRequest> {
             res *= base;
         }
         long cost = System.nanoTime() - start;
-        ctx.writeAndFlush(new MessageOutput(requestId, "exp_res", new ExpResponse(res, cost)));
+        ctx.writeAndFlush(new MessageOutput(requestId, "exp", new ExpResponse(res, cost)));
     }
 
-}
-
-class SumRequestHandler implements IMessageHandler {
-    @Override
-    public void handle(ChannelHandlerContext ctx, String requestId, Object message) {
-        try {
-            Class clazz = Class.forName("com.neo.yhrpc.demo.DemoFeignServer");
-            Method[] methods = clazz.getDeclaredMethods();
-            Method method = null;
-            for (Method m : methods) {
-                if (m.getName().equals("sum")) {
-                    method = m;
-                }
-            }
-            Object[] args = (Object[])message;
-            Object r = method.invoke(clazz.newInstance(), args);
-            ctx.writeAndFlush(new MessageOutput(requestId, "sum", r));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-    }
 }
 
 public class DemoServer {
@@ -81,8 +54,7 @@ public class DemoServer {
         RpcProvider server = new RpcProvider("localhost", 8000);
         server
                 .service("fib", Integer.class, new FibRequestHandler())
-                .service("exp", ExpRequest.class, new ExpRequestHandler())
-                .service("sum", Object[].class , new SumRequestHandler());
+                .service("exp", ExpRequest.class, new ExpRequestHandler());
         server.start();
     }
 

@@ -16,11 +16,6 @@ public class DemoClient {
 		return (Long) client.send("fib", n);
 	}
 
-	public int sum(int a, int b) {
-		Object[] x = {1, 2};
-		return (Integer) client.send("sum", x);
-	}
-
 	public ExpResponse exp(int base, int exp) {
 		return (ExpResponse) client.send("exp", new ExpRequest(base, exp));
 	}
@@ -49,8 +44,8 @@ public class DemoClient {
 
 		RpcConsumer client = new RpcConsumer("localhost", 8000);
 		DemoClient demoClient = new DemoClient(client);
-		int sum = demoClient.sum(1, 2);
-		System.out.println(sum);
+		long fib = demoClient.fib(3);
+		System.out.println("remote call fib result:" + fib);
 		client.close();
 	}
 

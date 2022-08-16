@@ -49,7 +49,7 @@ public class ProviderMessageCollector extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof MessageInput) {
-            this.executor.execute(() -> handleReflectMessage(ctx, (MessageInput) msg));
+            this.executor.execute(() -> handleMessage(ctx, (MessageInput) msg));
         }
     }
 
