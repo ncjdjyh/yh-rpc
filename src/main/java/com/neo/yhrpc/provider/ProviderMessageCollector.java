@@ -68,28 +68,9 @@ public class ProviderMessageCollector extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void handleReflectMessage(ChannelHandlerContext ctx, MessageInput input) {
-        Class<?> clazz = registry.get(input.getType());
-        if (clazz == null) {
-            ctx.close();
-            return;
-        }
-        Object o = input.getPayload(clazz);
-        ReflectMessageHandler handler = handlers.getReflect(input.getType());
-        if (handler != null) {
-            handler.handle(ctx, input.getRequestId(), (Object[]) o);
-        } else {
-            handlers.defaultHandler().handle(ctx, input.getRequestId(), input);
-        }
-    }
-
     public void register(String signature, Class<?> returnClass, IMessageHandler handler) {
         this.handlers.register(signature, handler);
         this.registry.register(signature, returnClass);
     }
 
-    public void registerReflect(String signature, Class<?> returnClass, ReflectMessageHandler handler) {
-        this.handlers.registerReflect(signature, handler);
-        this.registry.register(signature, returnClass);
-    }
 }
