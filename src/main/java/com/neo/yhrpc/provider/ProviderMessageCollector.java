@@ -1,6 +1,7 @@
 package com.neo.yhrpc.provider;
 
 import com.neo.yhrpc.common.*;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @FirstInitial: 2019/7/13
  * @Description: ~
  */
+@ChannelHandler.Sharable
 public class ProviderMessageCollector extends ChannelInboundHandlerAdapter {
     private ChannelHandlerContext context;
     private ExecutorService executor;
@@ -72,5 +74,4 @@ public class ProviderMessageCollector extends ChannelInboundHandlerAdapter {
         this.handlers.register(signature, handler);
         this.registry.register(signature, returnClass);
     }
-
 }

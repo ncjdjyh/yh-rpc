@@ -1,5 +1,6 @@
 package com.neo.yhrpc.demo;
 
+import com.alibaba.nacos.shaded.com.google.errorprone.annotations.Var;
 import com.neo.yhrpc.common.IMessageHandler;
 import com.neo.yhrpc.common.MessageOutput;
 import com.neo.yhrpc.provider.RpcProvider;
@@ -10,6 +11,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class FibRequestHandler implements IMessageHandler<Integer> {
 
@@ -49,13 +52,24 @@ class ExpRequestHandler implements IMessageHandler<ExpRequest> {
 }
 
 public class DemoServer {
+    private static ExecutorService executorService = Executors.newCachedThreadPool();
 
     public static void main(String[] args) {
-        RpcProvider server = new RpcProvider("localhost", 8000);
-        server
-                .service("fib", Integer.class, new FibRequestHandler())
-                .service("exp", ExpRequest.class, new ExpRequestHandler());
-        server.start();
+        executorService.execute(() -> {
+            RpcProvider server = new RpcProvider("localhost", 8000, "rpcService");
+            server
+                    .service("fib", Integer.class, new FibRequestHandler())
+                    .service("exp", ExpRequest.class, new ExpRequestHandler());
+            server.start();
+        });
+
+        executorService.execute(() -> {
+            RpcProvider server2 = new RpcProvider("localhost", 8001, "rpcService");
+            server2
+                    .service("fib", Integer.class, new FibRequestHandler())
+                    .service("exp", ExpRequest.class, new ExpRequestHandler());
+            server2.start();
+        });
     }
 
 }

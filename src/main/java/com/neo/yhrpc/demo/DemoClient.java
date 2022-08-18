@@ -1,6 +1,5 @@
 package com.neo.yhrpc.demo;
 
-import com.neo.yhrpc.common.RPCException;
 import com.neo.yhrpc.consumer.RpcConsumer;
 
 public class DemoClient {
@@ -20,31 +19,10 @@ public class DemoClient {
 		return (ExpResponse) client.send("exp", new ExpRequest(base, exp));
 	}
 
-	public static void main(String[] args) throws InterruptedException {
-		//RpcConsumer client = new RpcConsumer("localhost", 8000);
-		//DemoClient demo = new DemoClient(client);
-		//for (int i = 0; i < 30; i++) {
-		//	try {
-		//		System.out.printf("fib(%d) = %d\n", i, demo.fib(i));
-		//		Thread.sleep(100);
-		//	} catch (RPCException e) {
-		//		i--; // retry
-		//	}
-		//}
-		//for (int i = 0; i < 30; i++) {
-		//	try {
-		//		ExpResponse res = demo.exp(2, i);
-		//		Thread.sleep(100);
-		//		System.out.printf("exp2(%d) = %d cost=%dns\n", i, res.getValue(), res.getCostInNanos());
-		//	} catch (RPCException e) {
-		//		i--; // retry
-		//	}
-		//}
-		//client.close();
-
-		RpcConsumer client = new RpcConsumer("localhost", 8000);
+	public static void main(String[] args) {
+		RpcConsumer client = new RpcConsumer("rpcService");
 		DemoClient demoClient = new DemoClient(client);
-		long fib = demoClient.fib(3);
+		long fib = demoClient.fib(100);
 		System.out.println("remote call fib result:" + fib);
 		client.close();
 	}

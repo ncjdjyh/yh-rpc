@@ -5,8 +5,6 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.neo.yhrpc.common.NacosNamingService;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -18,14 +16,14 @@ import java.util.List;
 public class NacosTest {
     @Test
     public void registerInstance() throws NacosException {
-        NamingService instance = NacosNamingService.getInstance();
-        Assert.assertNotNull(instance);
 
         NamingService namingService = NamingFactory.createNamingService("127.0.0.1:8848");
 
-        namingService.registerInstance("fib", "localhost", 8080);
-        namingService.registerInstance("fib", "localhost", 8081);
+        namingService.registerInstance("fib", "8.8.8.8", 8089);
+        namingService = NamingFactory.createNamingService("127.0.0.1:8848");
+        namingService.registerInstance("fib", "127.0.0.1", 8010);
         List<Instance> fib = namingService.getAllInstances("fib");
-        System.out.println(JSONObject.toJSON(fib));
+//        Instance fib1 = RegisterCenter.getInstance("fib");
+        System.out.println(JSONObject.toJSONString(fib));
     }
 }

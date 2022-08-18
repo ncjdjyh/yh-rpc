@@ -1,5 +1,6 @@
 package com.neo.yhrpc.consumer;
 
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.neo.yhrpc.common.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -17,17 +18,15 @@ import java.util.concurrent.TimeUnit;
  * @Description: ~
  */
 public class RpcConsumer {
-    private String ip;
-    private int port;
     private EventLoopGroup group;
     private ConsumerMessageCollector collector;
     private Bootstrap bootstrap;
     private boolean started;
+    private String serviceName;
     private boolean stopped;
 
-    public RpcConsumer(String host, int port) {
-        this.ip = host;
-        this.port = port;
+    public RpcConsumer(String serviceName) {
+        this.serviceName = serviceName;
         init();
     }
 
@@ -51,6 +50,7 @@ public class RpcConsumer {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
+            close();
             throw new RPCException(e);
         }
     }
@@ -61,9 +61,8 @@ public class RpcConsumer {
         bootstrap.group(group);
         collector = new ConsumerMessageCollector(new MessageRegistry());
         bootstrap.channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
-
             @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
+            protected void initChannel(SocketChannel ch) {
                 ChannelPipeline pipe = ch.pipeline();
                 pipe.addLast(new ReadTimeoutHandler(60));
                 pipe.addLast(new MessageDecoder());
@@ -76,12 +75,24 @@ public class RpcConsumer {
     }
 
     private void connect() {
-        bootstrap.connect(ip, port).syncUninterruptibly();
+        Instance instance = RegisterCenter.getInstance(getServiceName());
+        if (instance == null) {
+            throw new RPCException("can not get available service!");
+        }
+        bootstrap.connect(instance.getIp(), instance.getPort()).syncUninterruptibly();
     }
 
     public void close() {
         stopped = true;
         collector.close();
         group.shutdownGracefully(0, 5000, TimeUnit.SECONDS);
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }
